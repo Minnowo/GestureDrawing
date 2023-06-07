@@ -5,7 +5,9 @@
 *postgres/
 *.idea/
 *video-test/
-qb_remote/debug.py
+gesture_drawing/core/CoreImageHandling.py
+gesture_drawing/core/CoreImageHandling
+test/
 
 *.png
 *.jpg

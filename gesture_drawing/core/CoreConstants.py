@@ -14,3 +14,14 @@ BRAND = "Gesture Drawing"
 
 import re
 NAME_IS_IMAGE_TYPE_REGEX = re.compile(r".*\.(png|jpg|jpeg|jfif|bmp|tiff|tif|webp)$", re.IGNORECASE)
+
+
+
+# image 
+IMAGE_JPEG = 100
+IMAGE_PNG  = 101
+IMAGE_GIF  = 102
+IMAGE_BMP  = 103
+IMAGE_ICON = 104
+IMAGE_WEBP = 105
+IMAGE_TIFF = 106

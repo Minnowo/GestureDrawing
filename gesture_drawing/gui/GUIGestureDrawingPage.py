@@ -2,7 +2,6 @@
 import random
 import sys
 import PySide6.QtCore
-import PySide6.QtGui
 import qtpy
 
 from qtpy import QtCore as QC
@@ -12,6 +11,7 @@ from qtpy import QtGui as QG
 from ..core import CoreLogging as logging
 from ..core import CoreData as CD
 
+from . import GUIGraphicsEffects
 
 class ImageViewer(QW.QGraphicsView):
     def __init__(self, parent=None, pixmap:QG.QPixmap=None):
@@ -62,6 +62,18 @@ class ImageViewer(QW.QGraphicsView):
         self.m_pixmapItem.setPixmap(self.alternate_image)
         self.alternate_image = _
 
+    def toggle_mirror_horizontal(self):
+
+        flip_trans =QG.QTransform().scale(-1, 1)
+
+        if self.alternate_image:
+            self.alternate_image = self.alternate_image.transformed(flip_trans)
+
+        current_pixmap = self.m_pixmapItem.pixmap()
+        mirrored_pixmap = current_pixmap.transformed(flip_trans)
+        self.m_pixmapItem.setPixmap(mirrored_pixmap)
+        self.fitInView(self.m_pixmapItem, QC.Qt.KeepAspectRatio)
+
 
 
 class GestureDrawingPage(QW.QWidget):
@@ -75,11 +87,19 @@ class GestureDrawingPage(QW.QWidget):
         self.show_hover_panel_lower_than_percentage = 0.8
         self.current_image_time = 0
 
-        self.viewer = ImageViewer(self)
-        self.viewer.setVerticalScrollBarPolicy(QC.Qt.ScrollBarAlwaysOff)
-        self.viewer.setHorizontalScrollBarPolicy(QC.Qt.ScrollBarAlwaysOff)
-        # needed to prevent eating the mouse move event
-        self.viewer.setAttribute(QC.Qt.WA_TransparentForMouseEvents)
+
+        self.scene = QW.QGraphicsScene(self)
+        self.graphicsview = QW.QGraphicsView(self.scene, self)
+        self.graphicsview.setAlignment(QC.Qt.AlignCenter)
+        self.graphicsview.setAttribute(QC.Qt.WA_TransparentForMouseEvents)
+        self.graphicsview.setVerticalScrollBarPolicy(QC.Qt.ScrollBarAlwaysOff)
+        self.graphicsview.setHorizontalScrollBarPolicy(QC.Qt.ScrollBarAlwaysOff)
+
+        self.graphics_effect_mixer :GUIGraphicsEffects.GraphicsEffectMixer = GUIGraphicsEffects.GraphicsEffectMixer()
+        self.invert_graphics_effect:GUIGraphicsEffects.InvertColorsEffect = None
+        self.mirror_graphics_effect:GUIGraphicsEffects.TransformEffect = None
+
+        self.pixmap = self.scene.addPixmap(QG.QPixmap())
 
         self.timer_label = QW.QLabel(self)
         self.timer_label.setAlignment(QC.Qt.AlignRight | QC.Qt.AlignTop)
@@ -123,10 +143,11 @@ class GestureDrawingPage(QW.QWidget):
         parent_layout.addLayout(layout)
 
         self.flip_image_button = QW.QPushButton("Flip Image")
+        self.flip_image_button.clicked.connect(self.mirror)
         layout.addWidget(self.flip_image_button)
 
-        self.greyscale_button = QW.QPushButton("Greyscale Mode")
-        self.greyscale_button.clicked.connect(self.viewer.toggle_grey)
+        self.greyscale_button = QW.QPushButton("Invert")
+        self.greyscale_button.clicked.connect(self.invert)
         layout.addWidget(self.greyscale_button)
 
         self.timer = QC.QTimer(self)
@@ -140,14 +161,20 @@ class GestureDrawingPage(QW.QWidget):
 
     def _set_image(self, path: str = None):
 
-        pix_map = self.viewer.pixmap
+        pix_map = self.pixmap.pixmap()
 
         if not path:
             new_pixmap = QG.QPixmap()
         else:
             new_pixmap = QG.QPixmap(path)
 
-        self.viewer.pixmap = new_pixmap
+
+        self.pixmap.setPixmap(new_pixmap)
+
+        # important! otherwise some images won't show up properly
+        self.scene.setSceneRect(0, 0, new_pixmap.width(), new_pixmap.height())
+
+        self.graphicsview.fitInView(self.pixmap, QC.Qt.KeepAspectRatio)
 
         del pix_map
 
@@ -176,7 +203,9 @@ class GestureDrawingPage(QW.QWidget):
         self.bottom_hover_panel.adjustSize()
         self.bottom_hover_panel.resize(self.width(), self.bottom_hover_panel.height())
         
-        self.viewer.resize(self.size())
+        self.graphicsview.setGeometry(0, 0, self.width(), self.height())
+        self.graphicsview.fitInView(self.pixmap, QC.Qt.KeepAspectRatio)
+
         self.timer_label.adjustSize()
 
         timer_width = self.timer_label.width()
@@ -190,6 +219,7 @@ class GestureDrawingPage(QW.QWidget):
     def mouseMoveEvent(self, event: QG.QMouseEvent):
 
         y = event.y()
+
 
         if y > self.height() * self.show_hover_panel_lower_than_percentage:
             self.bottom_hover_panel.setVisible(True)
@@ -278,3 +308,24 @@ class GestureDrawingPage(QW.QWidget):
         Should be set by the parent who wants to do something when this happens
         """
         pass 
+
+
+    def invert(self):
+
+        if self.invert_graphics_effect is None :
+            self.invert_graphics_effect = GUIGraphicsEffects.InvertColorsEffect(self.graphicsview)
+            self.invert_graphics_effect.setEnabled(False)
+            self.graphicsview.setGraphicsEffect(self.invert_graphics_effect)
+
+        if self.invert_graphics_effect.isEnabled():
+            self.invert_graphics_effect.setEnabled(False)
+
+        else:
+            self.invert_graphics_effect.setEnabled(True)
+
+        self.scene.invalidate()
+        self.graphicsview.viewport().update()
+
+    def mirror(self):
+
+        self.pixmap.setPixmap(self.pixmap.pixmap().transformed(QG.QTransform().scale(-1, 1)))

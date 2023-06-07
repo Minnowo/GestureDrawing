@@ -26,7 +26,7 @@ class MenuPage(QW.QWidget):
 
         self.folder_path_box = QW.QLineEdit()
         self.folder_path_box.setPlaceholderText("/path/to/image/folder")
-        self.folder_path_box.setText("/home/minno/Pictures/")
+        self.folder_path_box.setText("/home/minno/Pictures/gallery-dl")
 
         self.browse_button = QW.QPushButton("Browse")
         self.browse_button.clicked.connect(self._ask_choose_folder)
