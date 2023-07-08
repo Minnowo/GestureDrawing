@@ -5,6 +5,9 @@ from qtpy import QtCore as QC
 from qtpy import QtWidgets as QW
 from qtpy import QtGui as QG
 
+from .SettingsDialog import SettingsDialog
+
+
 def show_file_dialog(parent=None):
         file_dialog = QW.QFileDialog(parent)
         file_dialog.setFileMode(QW.QFileDialog.ExistingFiles)

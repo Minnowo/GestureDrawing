@@ -2,3 +2,4 @@ QtPy>=2.3.0
 PySide6>=6.4.1
 numpy>=1.24
 Pillow>=6.0.0
+hydrus-api~=5.0.1

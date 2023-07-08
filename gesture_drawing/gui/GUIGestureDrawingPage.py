@@ -2,12 +2,12 @@
 import random
 import sys
 import qtpy
+import logging
 
 from qtpy import QtCore as QC
 from qtpy import QtWidgets as QW
 from qtpy import QtGui as QG
 
-from ..core import CoreLogging as logging
 from ..core import CoreData as CD
 
 from . import GUIGraphicsEffects
@@ -76,6 +76,9 @@ class ImageViewer(QW.QGraphicsView):
 
 
 class GestureDrawingPage(QW.QWidget):
+
+    sessionFinishedEvent = QC.Signal(name="GestureDrawingSessionFinished")
+
     def __init__(self):
         super().__init__()
 
@@ -130,6 +133,7 @@ class GestureDrawingPage(QW.QWidget):
         # Other buttons
         layout = QW.QHBoxLayout()
         self.end_session_button = QW.QPushButton("End Session")
+        self.end_session_button.clicked.connect(self._internal_finished)
         layout.addWidget(self.end_session_button)
 
         self.grid_button = QW.QPushButton("Grid")
@@ -183,6 +187,7 @@ class GestureDrawingPage(QW.QWidget):
         self.session_duration = -1
         self.timer.stop()
         self._set_image()
+        self.finished()
 
     def _timer_tick(self):
 
@@ -263,7 +268,6 @@ class GestureDrawingPage(QW.QWidget):
 
         if not (index >= 0 and index < len(self.images)):
             self._internal_finished()
-            self.finished()
             return
 
         image = self.images[index]
@@ -274,7 +278,6 @@ class GestureDrawingPage(QW.QWidget):
 
         if not image:
             self._internal_finished()
-            self.finished()
             return
 
         self.timer_label.setText(str(self.session_duration))
@@ -300,12 +303,8 @@ class GestureDrawingPage(QW.QWidget):
 
 
     def finished(self):
-        """
-        Called when the session is finished,
-        
-        Should be set by the parent who wants to do something when this happens
-        """
-        pass 
+
+        self.sessionFinishedEvent.emit()
 
 
     def invert(self):

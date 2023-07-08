@@ -2,7 +2,7 @@ import numpy as np
 import os 
 import re
 from functools import partial
-
+import logging
 
 import qtpy
 
@@ -12,7 +12,6 @@ from qtpy import QtGui as QG
 
 from ..core import CoreConstants as CC
 from ..core import CoreData as CD
-from ..core import CoreLogging as logging
 
 from . import dialogs
 
