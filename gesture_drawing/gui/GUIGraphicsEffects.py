@@ -1,7 +1,7 @@
 
 
 from typing import Optional
-import PySide6.QtCore
+
 from qtpy import QtCore as QC
 from qtpy import QtWidgets as QW
 from qtpy import QtGui as QG
@@ -13,7 +13,15 @@ class InvertColorsEffect(QW.QGraphicsEffect):
 
         source_pixmap : QG.QPixmap
         location :QC.QPoint
-        source_pixmap, location = self.sourcePixmap(mode=QW.QGraphicsEffect.PadToEffectiveBoundingRect)
+
+        _ =  self.sourcePixmap(mode=QW.QGraphicsEffect.PadToEffectiveBoundingRect)
+
+        # older version of qtpy returns tuple
+        if isinstance(_, tuple):
+            source_pixmap, location = _
+        else:
+            source_pixmap = _
+            location = QC.QPoint()
 
         if not source_pixmap.isNull():
 
@@ -36,7 +44,15 @@ class TransformEffect(QW.QGraphicsEffect):
 
         source_pixmap : QG.QPixmap
         location :QC.QPoint
-        source_pixmap, location = self.sourcePixmap(mode=QW.QGraphicsEffect.PadToEffectiveBoundingRect)
+
+        _ =  self.sourcePixmap(mode=QW.QGraphicsEffect.PadToEffectiveBoundingRect)
+
+        # older version of qtpy returns tuple
+        if isinstance(_, tuple):
+            source_pixmap, location = _
+        else:
+            source_pixmap = _
+            location = QC.QPoint()
 
         if not source_pixmap.isNull():
 
