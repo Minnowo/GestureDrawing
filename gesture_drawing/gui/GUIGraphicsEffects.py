@@ -7,27 +7,6 @@ from qtpy import QtWidgets as QW
 from qtpy import QtGui as QG
 
 
-class GraphicsEffectMixer(QW.QGraphicsEffect):
-
-    def __init__(self, parent:QC.QObject | None = None) -> None:
-        super().__init__(parent)
-
-        self.effects:list[QW.QGraphicsEffect] = []
-
-    def add_graphics_effect(self, effet:QW.QGraphicsEffect):
-
-        self.effects.append(effet)
-
-    def draw(self, painter):
-
-        for effect in self.effects:
-
-            if effect.isEnabled():
-
-                effect.draw(painter)
-
-
-
 class InvertColorsEffect(QW.QGraphicsEffect):
 
     def draw(self, painter):

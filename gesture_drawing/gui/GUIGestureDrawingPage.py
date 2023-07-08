@@ -1,7 +1,6 @@
 
 import random
 import sys
-import PySide6.QtCore
 import qtpy
 
 from qtpy import QtCore as QC
@@ -95,9 +94,10 @@ class GestureDrawingPage(QW.QWidget):
         self.graphicsview.setVerticalScrollBarPolicy(QC.Qt.ScrollBarAlwaysOff)
         self.graphicsview.setHorizontalScrollBarPolicy(QC.Qt.ScrollBarAlwaysOff)
 
-        self.graphics_effect_mixer :GUIGraphicsEffects.GraphicsEffectMixer = GUIGraphicsEffects.GraphicsEffectMixer()
         self.invert_graphics_effect:GUIGraphicsEffects.InvertColorsEffect = None
-        self.mirror_graphics_effect:GUIGraphicsEffects.TransformEffect = None
+
+        self.lines = []
+
 
         self.pixmap = self.scene.addPixmap(QG.QPixmap())
 
@@ -132,21 +132,19 @@ class GestureDrawingPage(QW.QWidget):
         self.end_session_button = QW.QPushButton("End Session")
         layout.addWidget(self.end_session_button)
 
-        self.file_info_button = QW.QPushButton("File Info")
-        layout.addWidget(self.file_info_button)
-
-        self.delete_file_button = QW.QPushButton("Delete File")
-        layout.addWidget(self.delete_file_button)
-
         self.grid_button = QW.QPushButton("Grid")
+        self.grid_button.setCheckable(True)
+        self.grid_button.clicked.connect(self.show_grid)
         layout.addWidget(self.grid_button)
         parent_layout.addLayout(layout)
 
         self.flip_image_button = QW.QPushButton("Flip Image")
+        self.flip_image_button.setCheckable(True)
         self.flip_image_button.clicked.connect(self.mirror)
         layout.addWidget(self.flip_image_button)
 
         self.greyscale_button = QW.QPushButton("Invert")
+        self.greyscale_button.setCheckable(True)
         self.greyscale_button.clicked.connect(self.invert)
         layout.addWidget(self.greyscale_button)
 
@@ -317,11 +315,8 @@ class GestureDrawingPage(QW.QWidget):
             self.invert_graphics_effect.setEnabled(False)
             self.graphicsview.setGraphicsEffect(self.invert_graphics_effect)
 
-        if self.invert_graphics_effect.isEnabled():
-            self.invert_graphics_effect.setEnabled(False)
 
-        else:
-            self.invert_graphics_effect.setEnabled(True)
+        self.invert_graphics_effect.setEnabled(self.greyscale_button.isChecked())
 
         self.scene.invalidate()
         self.graphicsview.viewport().update()
@@ -329,3 +324,30 @@ class GestureDrawingPage(QW.QWidget):
     def mirror(self):
 
         self.pixmap.setPixmap(self.pixmap.pixmap().transformed(QG.QTransform().scale(-1, 1)))
+
+
+    def show_grid(self):
+
+        if not self.lines:
+            w = self.pixmap.pixmap().width()
+            w3 = w // 3
+            h = self.pixmap.pixmap().height()
+            h3 = h // 3
+
+            for i in range(3):
+
+                line = QW.QGraphicsLineItem(i*w3, 0, i*w3, h)
+                self.lines.append(line)
+                self.scene.addItem(line)
+
+                line = QW.QGraphicsLineItem(0, i*h3, w, i*h3)
+                self.lines.append(line)
+
+                self.scene.addItem(line)
+                
+        for line in self.lines:
+            line.setVisible(self.grid_button.isChecked())
+
+        self.scene.invalidate()
+        self.graphicsview.viewport().update()
+
