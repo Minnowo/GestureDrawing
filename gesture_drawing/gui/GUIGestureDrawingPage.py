@@ -287,6 +287,9 @@ class GestureDrawingPage(QW.QWidget):
 
         self._set_image(image)
 
+        if self.grid_button.isChecked():
+            self.update_lines()
+
         self.timer.stop()
         self.timer.start()
 
@@ -324,6 +327,17 @@ class GestureDrawingPage(QW.QWidget):
 
         self.pixmap.setPixmap(self.pixmap.pixmap().transformed(QG.QTransform().scale(-1, 1)))
 
+    def update_grid(self):
+
+        if not self.lines:
+            self.show_grid()
+            return
+        
+        for line in self.lines:
+            self.scene.removeItem(line)
+
+        self.lines = []
+        self.show_grid()
 
     def show_grid(self):
 
