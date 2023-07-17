@@ -1,6 +1,8 @@
-
+import logging
+import traceback
 
 from . import CoreHydrusAPI  
+from . import CoreData as CD
 
 
 class ClientController():
@@ -55,6 +57,9 @@ class ClientController():
                 setting[p] = _
                 setting = _
 
+            else:
+                setting = setting[p]
+
         setting[setting_path[l - 1]] = setting_value
 
     def get_hydrus_url(self):
@@ -85,4 +90,36 @@ class ClientController():
         return api_key
 
 
+    @CoreHydrusAPI.require_hydrus_api
+    def verify_hydrus_api(self):
 
+        self.update_hydrus()
+
+        return CoreHydrusAPI.verify_permissions()
+
+
+    def boot_everything(self):
+
+        try:
+            self._is_booted = True
+
+            CD.load_settings(self._settings)
+
+        except Exception as e:
+            trace = traceback.format_exc()
+
+            logging.error(trace)
+
+
+    def shutdown_everything(self):
+
+        try:
+
+            CD.save_settings(self._settings)
+
+            self._is_booted = False
+
+        except Exception as e:
+            trace = traceback.format_exc()
+
+            logging.error(trace)

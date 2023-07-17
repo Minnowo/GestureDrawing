@@ -1,8 +1,11 @@
+import logging
 import time
+import json
 import os 
 import re 
-from typing import Union
+from typing import Union, MutableMapping
 
+from . import CoreConstants as CC
 
 
 def find_files(folder: str, include_subdirs:bool=True, name_matches:re.Pattern=None, output_list:list[str]=None):
@@ -111,5 +114,55 @@ def time_delta_until_time_precise(t):
     return max(time_remaining, 0.0)
 
 
+def update_dictionary_no_key_remove(dicta: MutableMapping, dictb: MutableMapping):
+    for key, value in dictb.items():
+        if key in dicta and isinstance(dicta[key], MutableMapping) and isinstance(value, dict):
+            update_dictionary_no_key_remove(dicta[key], value)
+        else:
+            dicta[key] = value
 
 
+def save_json(path: str, json_:dict):
+
+    with open(path, "w") as writer:
+
+        json.dump(json_, writer, indent=3)
+
+def load_json(path:str) -> dict:
+
+    with open(path, "rb") as reader:
+
+        return json.load(reader)
+
+def save_settings(settings_json:dict):
+
+    if not os.path.isdir(CC.CONFIG_DIRECTORY) and CC.CONFIG_DIRECTORY:
+
+        os.makedirs(CC.CONFIG_DIRECTORY, exist_ok=True)
+
+
+    save_json(CC.CONFIG_CLIENT_SETTINGS, settings_json)
+
+
+def load_settings(settings_json:dict):
+
+    if not os.path.isdir(CC.CONFIG_DIRECTORY) or not os.path.isfile(CC.CONFIG_CLIENT_SETTINGS):
+        logging.warn("Settings file or directory does not exist")
+        return
+
+    logging.info(f"Loading settings at {CC.CONFIG_CLIENT_SETTINGS}")
+    try:
+
+        new_settings = load_json(CC.CONFIG_CLIENT_SETTINGS)
+    except Exception as e:
+
+        logging.error(e)
+        return
+
+    if not new_settings:
+        logging.info("No settings loaded")
+        return
+
+    logging.info("Settings loaded successfully")
+
+    update_dictionary_no_key_remove(settings_json, new_settings)

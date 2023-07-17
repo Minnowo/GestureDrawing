@@ -28,11 +28,11 @@ class ClientWindow(QW.QMainWindow):
 
         self.stacked_widget = QW.QStackedWidget()
 
-        self.menu_panel = GUIMenuPage.MenuPage()
+        self.menu_panel = GUIMenuPage.MenuPage(controller)
         self.menu_panel.start_button.clicked.connect(self.start)
         self.stacked_widget.addWidget(self.menu_panel)
 
-        self.drawing_panel = GUIGestureDrawingPage.GestureDrawingPage()
+        self.drawing_panel = GUIGestureDrawingPage.GestureDrawingPage(controller)
         self.drawing_panel.sessionFinishedEvent.connect(self._finished_session)
         self.stacked_widget.addWidget(self.drawing_panel)
 

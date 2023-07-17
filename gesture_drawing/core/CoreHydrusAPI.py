@@ -20,6 +20,10 @@ except ImportError as e:
     HYDRUS_API_OK = False
 
 
+NAME = "Gesture Drawing"
+REQUIRED_PERMISSIONS = (
+    hydrus_api.Permission.SEARCH_FILES,
+)
 
 
 def require_hydrus_api(func):
@@ -35,7 +39,7 @@ _hydrus_client = None
 
 
 @require_hydrus_api
-def get_client(api_key=None, api_url=DEFAULT_URL, verify_session=True):
+def get_client(api_key=None, api_url=DEFAULT_URL, verify_session=True) -> hydrus_api.Client:
 
     global _hydrus_client
 
@@ -45,7 +49,7 @@ def get_client(api_key=None, api_url=DEFAULT_URL, verify_session=True):
     return _hydrus_client
 
 @require_hydrus_api
-def get_update_client(api_url, verify_session, api_key=None):
+def get_update_client(api_url, verify_session, api_key=None) -> hydrus_api.Client:
 
     global _hydrus_client
 
@@ -66,17 +70,27 @@ def get_update_client(api_url, verify_session, api_key=None):
 @require_hydrus_api
 def get_api_key():
 
-    NAME = "Gesture Drawing"
-    REQUIRED_PERMISSIONS = (
-        hydrus_api.Permission.SEARCH_FILES,
-    )
 
     client = get_client()
 
     if not client:
         return ""
 
-    api_key = client.request_new_permissions(NAME, REQUIRED_PERMISSIONS)['access_key']
+    try:
+        api_key = client.request_new_permissions(NAME, REQUIRED_PERMISSIONS)['access_key']
+
+    except Exception as e:
+
+        msg = str(e)
+
+        if "permission registration dialog is not open" in msg:
+            logging.warn("The hydrus permission registration dialog is not open! You must open it under 'Review Services'")
+            return ""
+
+        logging.error(e)
+        return ""
+
+
     
     logging.info(f"API Key {api_key}")
 
@@ -84,3 +98,10 @@ def get_api_key():
 
     return api_key
 
+
+
+def verify_permissions():
+
+    client = get_client()
+
+    return hydrus_api.utils.verify_permissions(client,REQUIRED_PERMISSIONS)

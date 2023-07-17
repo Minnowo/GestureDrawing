@@ -1,5 +1,7 @@
 import datetime
+import os
 import time
+import pathlib
 
 START_TIME_PRECISE = time.perf_counter()
 # ha, subtracting here makes it suuuper close the psutil.create_time()
@@ -11,6 +13,9 @@ START_TIME_PRETTY = datetime.datetime.strftime(START_TIME_DATE, "%Y-%m-%d %H:%M:
 
 BRAND = "Gesture Drawing"
 
+CONFIG_DIRECTORY = os.path.join(pathlib.Path.home(), ".config", "gesture_drawing")
+CONFIG_CLIENT_SETTINGS = os.path.join(CONFIG_DIRECTORY, "settings.json")
+LOG_FILE = os.path.join(CONFIG_DIRECTORY, "logs.logs")
 
 import re
 NAME_IS_IMAGE_TYPE_REGEX = re.compile(r".*\.(png|jpg|jpeg|jfif|bmp|tiff|tif|webp)$", re.IGNORECASE)

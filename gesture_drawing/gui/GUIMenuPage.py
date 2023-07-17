@@ -12,12 +12,15 @@ from qtpy import QtGui as QG
 
 from ..core import CoreConstants as CC
 from ..core import CoreData as CD
+from ..core import CoreHydrusAPI
 
 from . import dialogs
 
 class MenuPage(QW.QWidget):
-    def __init__(self):
+    def __init__(self, controller):
         super().__init__()
+
+        self._controller = controller
 
         self.draw_time = 30
         self.selected_folder_path = ""
@@ -27,8 +30,12 @@ class MenuPage(QW.QWidget):
         self.folder_path_box.setPlaceholderText("/path/to/image/folder")
         self.folder_path_box.setText("/home/minno/Pictures/gallery-dl")
 
-        self.browse_button = QW.QPushButton("Browse")
+        self.browse_button = QW.QPushButton("Browse For Folder")
         self.browse_button.clicked.connect(self._ask_choose_folder)
+
+        self.browse_hydrus = QW.QPushButton("Browse Hydrus")
+        self.browse_hydrus.clicked.connect(self._browse_hydrus)
+        self.browse_hydrus.setEnabled(CoreHydrusAPI.HYDRUS_API_OK)
 
         self.folder_summary_label = QW.QLabel("Found 116 images in 20 subfolders")
 
@@ -59,6 +66,7 @@ class MenuPage(QW.QWidget):
         layout.addLayout(layout_2)
 
         layout.addWidget(self.folder_summary_label)
+        layout.addWidget(self.browse_hydrus)
 
         layout_3 = QW.QHBoxLayout()
         [layout_3.addWidget(b) for b in self.set_time_buttons]
@@ -66,6 +74,9 @@ class MenuPage(QW.QWidget):
 
         layout.addWidget(self.start_button)
 
+
+    def _browse_hydrus(self):
+        pass
 
     def _ask_choose_folder(self):
 

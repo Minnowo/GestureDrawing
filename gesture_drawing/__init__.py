@@ -13,6 +13,7 @@ from qtpy import QtGui as QG
 from .gui import GUIClient
 from .core import CoreLogging as logging
 from .core import CoreController
+from .core import CoreConstants as CC
 
 def get_darkModePalette( app=None ) :
     
@@ -41,11 +42,12 @@ def get_darkModePalette( app=None ) :
     return darkPalette
 
 def main():
-    load_dotenv()
-    logging.setup_logging("logs.log")
+    logging.setup_logging(CC.LOG_FILE)
     logging.add_unhandled_exception_hook()
 
     controller = CoreController.ClientController()
+
+    controller.boot_everything()
 
     try:
         app = QW.QApplication([])
@@ -60,5 +62,4 @@ def main():
         app.exec()
 
     finally:
-        pass
-        # CG.client_instance.auth_log_out()
+        controller.shutdown_everything()

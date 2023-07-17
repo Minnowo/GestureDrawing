@@ -79,8 +79,10 @@ class GestureDrawingPage(QW.QWidget):
 
     sessionFinishedEvent = QC.Signal(name="GestureDrawingSessionFinished")
 
-    def __init__(self):
+    def __init__(self, controller):
         super().__init__()
+
+        self._controller = controller
 
         self.images:list[str] = []
         self.image_index = -1
@@ -288,7 +290,7 @@ class GestureDrawingPage(QW.QWidget):
         self._set_image(image)
 
         if self.grid_button.isChecked():
-            self.update_lines()
+            self.update_grid()
 
         self.timer.stop()
         self.timer.start()

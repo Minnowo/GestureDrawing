@@ -18,22 +18,13 @@ class SettingsDialog(QW.QDialog):
         super().__init__(parent)
 
         self._controller:CoreController.ClientController = controller 
+        self._old_https_setting = self._controller.get_setting("hydrus", "verify_https")
 
         layout = QW.QVBoxLayout()
         self.setLayout(layout)
 
         tab_widget = QW.QTabWidget()
         layout.addWidget(tab_widget)
-
-        client_settings_tab = QW.QWidget()
-        settings_layout =QW. QVBoxLayout()
-        client_settings_tab.setLayout(settings_layout)
-
-        label = QW.QLabel('Client ID:')
-        self.line_edit__client_id = QW.QLineEdit()
-
-        settings_layout.addWidget(label)
-        settings_layout.addWidget(self.line_edit__client_id)
 
 
 
@@ -54,8 +45,12 @@ class SettingsDialog(QW.QDialog):
         self.button__request_api_key = QW.QPushButton("Request API Key")
         self.button__request_api_key.clicked.connect(self.request_api_key)
         self.label__api_persm_valid_display = QW.QLabel('')
-        self.button__verify_api_perms = QW.QPushButton("Verify API Key & Permission")
+        self.button__verify_api_perms = QW.QPushButton("Verify API Key Permission")
         self.button__verify_api_perms.clicked.connect(self.verify_api_perms)
+        self.checkbox__verify_https = QW.QCheckBox("Verify https")
+        self.checkbox__verify_https.setChecked(self._old_https_setting) 
+        self.checkbox__verify_https.stateChanged.connect(self.verify_https_changed)
+        
 
         _layouthz1 = QW.QHBoxLayout()
         _layouthz1.addWidget(self.line_edit__hydrus_api_url)
@@ -63,10 +58,11 @@ class SettingsDialog(QW.QDialog):
         settings_layout.addLayout(_layouthz1)
         settings_layout.addWidget(self.line_edit__hydrus_api_key)
         settings_layout.addWidget(self.button__request_api_key)
+        settings_layout.addWidget(self.label__api_persm_valid_display)
         settings_layout.addWidget(self.button__verify_api_perms)
+        settings_layout.addWidget(self.checkbox__verify_https)
 
         
-        tab_widget.addTab(client_settings_tab, "Client Settings")
         tab_widget.addTab(hydrus_tab, "Hydrus Settings")
 
 
@@ -77,6 +73,11 @@ class SettingsDialog(QW.QDialog):
         self.button_box.rejected.connect(self.reject)
 
         layout.addWidget(self.button_box)
+
+
+    def verify_https_changed(self):
+
+        self._controller.set_setting(('hydrus', 'verify_https'), self.checkbox__verify_https.isChecked())
 
     def verify_api_perms(self):
 
@@ -100,17 +101,24 @@ class SettingsDialog(QW.QDialog):
 
         ip = self.line_edit__hydrus_api_url.text().strip()
         if ip and ip != self._controller.get_setting("hydrus", "host"): 
+            logging.info("Updating hydrus host path")
             self._controller.set_setting(("hydrus", "host",), ip)
 
         port = self.spinbox__hydrus_api_port.value()
         if port and port != self._controller.get_setting("hydrus", "port"):
+            logging.info("Updating hydrus api port")
             self._controller.set_setting(("hydrus", "port"), port)
 
         api_key = self.line_edit__hydrus_api_key.text().strip()
-        if api_key and api_key != self._controller.get_setting("hydrus", "username"):
+        if api_key and api_key != self._controller.get_setting("hydrus", "api_key"):
+            logging.info("Updating hydrus api key")
             self._controller.set_setting(("hydrus", "api_key"), api_key)
 
         return True 
+
+    def reject(self) -> None:
+        self._controller.set_setting(('hydrus', 'verify_https'), self._old_https_setting)
+        return super().reject()
 
     def accept(self) -> None:
 
