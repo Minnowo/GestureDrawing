@@ -45,6 +45,7 @@ class SettingsDialog(QW.QDialog):
         self.button__request_api_key = QW.QPushButton("Request API Key")
         self.button__request_api_key.clicked.connect(self.request_api_key)
         self.label__api_persm_valid_display = QW.QLabel('')
+        self.label__api_persm_valid_display.setVisible(False)
         self.button__verify_api_perms = QW.QPushButton("Verify API Key Permission")
         self.button__verify_api_perms.clicked.connect(self.verify_api_perms)
         self.checkbox__verify_https = QW.QCheckBox("Verify https")
@@ -57,10 +58,13 @@ class SettingsDialog(QW.QDialog):
         _layouthz1.addWidget(self.spinbox__hydrus_api_port)
         settings_layout.addLayout(_layouthz1)
         settings_layout.addWidget(self.line_edit__hydrus_api_key)
-        settings_layout.addWidget(self.button__request_api_key)
-        settings_layout.addWidget(self.label__api_persm_valid_display)
-        settings_layout.addWidget(self.button__verify_api_perms)
         settings_layout.addWidget(self.checkbox__verify_https)
+        settings_layout.addStretch(1)
+        settings_layout.addWidget(self.button__request_api_key)
+        _layouthz1 = QW.QHBoxLayout()
+        _layouthz1.addWidget(self.button__verify_api_perms)
+        _layouthz1.addWidget(self.label__api_persm_valid_display)
+        settings_layout.addLayout(_layouthz1)
 
         
         tab_widget.addTab(hydrus_tab, "Hydrus Settings")
@@ -87,6 +91,8 @@ class SettingsDialog(QW.QDialog):
             self.label__api_persm_valid_display.setText("API Key Is Vald")
         else:
             self.label__api_persm_valid_display.setText("API Key Is NOT Vald")
+
+        self.label__api_persm_valid_display.setVisible(True)
 
     def request_api_key(self):
 

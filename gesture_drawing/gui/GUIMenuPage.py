@@ -67,16 +67,19 @@ class MenuPage(QW.QWidget):
 
         layout.addWidget(self.folder_summary_label)
         layout.addWidget(self.browse_hydrus)
+        layout.addStretch(1)
 
         layout_3 = QW.QHBoxLayout()
-        [layout_3.addWidget(b) for b in self.set_time_buttons]
+        for b in self.set_time_buttons:
+            layout_3.addWidget(b)
         layout.addLayout(layout_3)
 
         layout.addWidget(self.start_button)
 
 
     def _browse_hydrus(self):
-        pass
+
+        dialogs.HydrusSearchDialog(self._controller, self).exec_()
 
     def _ask_choose_folder(self):
 

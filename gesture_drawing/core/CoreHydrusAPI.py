@@ -99,7 +99,7 @@ def get_api_key():
     return api_key
 
 
-
+@require_hydrus_api
 def verify_permissions():
 
     client = get_client()

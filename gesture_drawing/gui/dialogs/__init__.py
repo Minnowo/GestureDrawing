@@ -6,6 +6,8 @@ from qtpy import QtWidgets as QW
 from qtpy import QtGui as QG
 
 from .SettingsDialog import SettingsDialog
+from .HydrusSearchDialog import HydrusSearchDialog
+
 
 
 def show_file_dialog(parent=None):
