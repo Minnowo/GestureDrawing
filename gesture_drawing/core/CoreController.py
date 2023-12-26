@@ -12,7 +12,7 @@ class ClientController():
         self._settings = {
                 "hydrus" : {
                     "port": 45869,
-                    "url_scheme": "https",
+                    "url_scheme": "http",
                     "host": "127.0.0.1",
                     "api_key" : "",
                     "verify_https": False,
@@ -83,7 +83,12 @@ class ClientController():
 
         api_key = CoreHydrusAPI.get_api_key()
 
-        self.set_setting(("hydrus", "api_key"), api_key)
+        if api_key:
+
+            self.set_setting(("hydrus", "api_key"), api_key)
+            self.update_hydrus()
+        else:
+            logging.info("Failed to get an api key")
 
         return api_key
 
@@ -93,11 +98,12 @@ class ClientController():
 
         api_key = self.get_setting("hydrus", "api_key")
 
+        self.update_hydrus()
+
         if not api_key:
             logging.info("Fetching api key..")
-            api_key = self.get_hydrus_api_key()
 
-        self.update_hydrus()
+            self.get_hydrus_api_key()
 
         return CoreHydrusAPI.verify_permissions()
 

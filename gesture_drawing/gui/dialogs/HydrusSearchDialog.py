@@ -33,8 +33,7 @@ class HydrusSearchDialog(QW.QDialog):
             all_services = self.hy_client.get_services()
         else:
             logging.warning("Hydrus Client is not good. Aborting..")
-            self.reject()
-            return
+            raise Exception()
 
         file_service = [
             "local_files",
