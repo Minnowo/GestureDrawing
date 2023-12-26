@@ -10,7 +10,7 @@ try:
     def _new_request_method(self, method: str, path: str, **kwargs):
         if "timeout" not in kwargs:
             kwargs["timeout"] = 3
-        self._api_request_old(method, path, **kwargs)
+        return self._api_request_old(method, path, **kwargs)
 
     hydrus_api.Client._api_request_old = hydrus_api.Client._api_request
     hydrus_api.Client._api_request = _new_request_method
