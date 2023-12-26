@@ -24,11 +24,17 @@ class HydrusSearchDialog(QW.QDialog):
         self._controller:CoreController.ClientController = controller 
         self.is_searching = False
 
-        self._controller.update_hydrus()
+        we_good = self._controller.verify_hydrus_api()
 
         self.hy_client =  CoreHydrusAPI.get_client()
 
-        all_services = self.hy_client.get_services()
+        if we_good:
+            logging.info("Hydrus Client is good, fetching services..")
+            all_services = self.hy_client.get_services()
+        else:
+            logging.warning("Hydrus Client is not good. Aborting..")
+            self.reject()
+            return
 
         file_service = [
             "local_files",

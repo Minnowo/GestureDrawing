@@ -19,8 +19,6 @@ class ClientController():
                     }
                 }
 
-        self.update_hydrus()
-
     def get_setting(self, *args):
 
         setting_path = args
@@ -93,6 +91,12 @@ class ClientController():
     @CoreHydrusAPI.require_hydrus_api
     def verify_hydrus_api(self):
 
+        api_key = self.get_setting("hydrus", "api_key")
+
+        if not api_key:
+            logging.info("Fetching api key..")
+            api_key = self.get_hydrus_api_key()
+
         self.update_hydrus()
 
         return CoreHydrusAPI.verify_permissions()
@@ -101,9 +105,14 @@ class ClientController():
     def boot_everything(self):
 
         try:
-            self._is_booted = True
 
             CD.load_settings(self._settings)
+
+            logging.debug(f"Loaded settings {self._settings}")
+
+            self.update_hydrus()
+
+            self._is_booted = True
 
         except Exception as e:
             trace = traceback.format_exc()

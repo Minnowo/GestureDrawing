@@ -113,4 +113,9 @@ def verify_permissions():
 
     client = get_client()
 
-    return hydrus_api.utils.verify_permissions(client,REQUIRED_PERMISSIONS)
+    try:
+
+        return hydrus_api.utils.verify_permissions(client,REQUIRED_PERMISSIONS)
+    except Exception as e:
+        logging.error(e)
+        return False

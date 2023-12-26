@@ -79,7 +79,12 @@ class MenuPage(QW.QWidget):
 
     def _browse_hydrus(self):
 
-        dialogs.HydrusSearchDialog(self._controller, self).exec_()
+        d = dialogs.HydrusSearchDialog(self._controller, self)
+        
+        if d.rejected:
+            return
+
+        d.exec_()
 
     def _ask_choose_folder(self):
 
