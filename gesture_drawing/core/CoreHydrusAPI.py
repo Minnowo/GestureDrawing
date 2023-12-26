@@ -2,12 +2,20 @@ import logging
 
 try:
 
-   import hydrus_api
-   import hydrus_api.utils
+    import hydrus_api
+    import hydrus_api.utils
 
-   DEFAULT_URL = hydrus_api.DEFAULT_API_URL
+    DEFAULT_URL = hydrus_api.DEFAULT_API_URL
 
-   HYDRUS_API_OK = True
+    def _new_request_method(self, method: str, path: str, **kwargs):
+        if "timeout" not in kwargs:
+            kwargs["timeout"] = 3
+        self._api_request_old(method, path, **kwargs)
+
+    hydrus_api.Client._api_request_old = hydrus_api.Client._api_request
+    hydrus_api.Client._api_request = _new_request_method
+
+    HYDRUS_API_OK = True
 
 
 except ImportError as e:
