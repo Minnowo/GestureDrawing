@@ -68,7 +68,7 @@ def get_update_client(api_url, verify_session, api_key=None) -> hydrus_api.Clien
         _hydrus_client.access_key = api_key
 
     if api_url:
-        _hydrus_client.api_url = api_url
+        _hydrus_client.api_url = api_url.rstrip("/")
 
     _hydrus_client.session.verify = verify_session
 
@@ -85,6 +85,7 @@ def get_api_key():
         return ""
 
     try:
+        logging.info("LITERALLY ABOUT TO REQUEST PERMS")
         api_key = client.request_new_permissions(NAME, REQUIRED_PERMISSIONS)['access_key']
 
     except Exception as e:
